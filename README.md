@@ -1,4 +1,4 @@
-# joy-loyalty-skills
+# joy-loyalty-hydrogen-skills
 
 Agent skills for integrating [Joy Loyalty](https://joy.so) into headless Shopify storefronts (Hydrogen, Weaverse).
 
@@ -25,24 +25,24 @@ Liquid (Online Store theme) stores do not need these skills: Joy works there thr
 Run in your Hydrogen project root. The CLI detects your agents and installs for each:
 
 ```bash
-npx skills add tinhnv2001/joy-loyalty-skills
+npx skills add tinhnv2001/joy-loyalty-hydrogen-skills
 ```
 
 Preview without installing:
 
 ```bash
-npx skills add tinhnv2001/joy-loyalty-skills --list
+npx skills add tinhnv2001/joy-loyalty-hydrogen-skills --list
 ```
 
 | Target | Command |
 |---|---|
-| This project, Claude Code **(default)** | `npx skills add tinhnv2001/joy-loyalty-skills -a claude-code -y` |
-| All projects, Claude Code | `npx skills add tinhnv2001/joy-loyalty-skills -g -a claude-code -y` |
-| Codex | `npx skills add tinhnv2001/joy-loyalty-skills -a codex -y` |
-| Cursor | `npx skills add tinhnv2001/joy-loyalty-skills -a cursor -y` |
-| Several agents | `npx skills add tinhnv2001/joy-loyalty-skills -a claude-code -a codex -a cursor -y` |
-| One skill only | `npx skills add tinhnv2001/joy-loyalty-skills --skill joy-headless-install` |
-| Interactive | `npx skills add tinhnv2001/joy-loyalty-skills` |
+| This project, Claude Code **(default)** | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a claude-code -y` |
+| All projects, Claude Code | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -g -a claude-code -y` |
+| Codex | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a codex -y` |
+| Cursor | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a cursor -y` |
+| Several agents | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a claude-code -a codex -a cursor -y` |
+| One skill only | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills --skill joy-headless-install` |
+| Interactive | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills` |
 
 `-g` installs user-wide, `-y` skips prompts. Add `--copy` if the machine cannot symlink.
 
@@ -57,8 +57,8 @@ npx skills ls -a claude-code
 ### git clone (no Skills CLI)
 
 ```bash
-git clone https://github.com/tinhnv2001/joy-loyalty-skills.git /tmp/joy-loyalty-skills
-cp -R /tmp/joy-loyalty-skills/skills/joy-headless-install .claude/skills/
+git clone https://github.com/tinhnv2001/joy-loyalty-hydrogen-skills.git /tmp/joy-loyalty-hydrogen-skills
+cp -R /tmp/joy-loyalty-hydrogen-skills/skills/joy-headless-install .claude/skills/
 ```
 
 `SKILL.md` must end up at `.claude/skills/joy-headless-install/SKILL.md` (or the equivalent folder for your agent).
