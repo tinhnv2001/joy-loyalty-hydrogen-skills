@@ -80,6 +80,13 @@ In `app/root.tsx` loader (import from `@joy-loyalty/hydrogen/server`), call it w
 Also return `joyApiUrl`, `joyShopDomain`, `joyAssetUrl` for the client. Never throws.
 Leave `exposeToken` off (it puts a live JWT into SSR HTML). Snippet: `references/example-root.md` §1.
 
+> **Never stub `customerAccount`** (e.g. `{isLoggedIn: () => false, query: () => ({})}`) to keep the
+> document anonymous for Oxygen's full-page cache. The widget reads "no customer in SSR + a cached Joy
+> token" as a logout and clears the token on every page load (`orchestrator/context.js`). The widget then
+> runs `/info` as a guest, never sends `isEarnSignup=true`, and **sign-up points are never awarded**.
+> Always pass the real `context.customerAccount`, and keep personalized documents out of the shared
+> cache with §6 + §10 instead.
+
 ## 6. `entry.server.tsx` — CSP + personalized cache
 
 - `joyCspDirectives({apiUrl: env.JOY_API_URL, assetUrl: env.JOY_WIDGET_ASSET_URL})` →
@@ -140,7 +147,11 @@ export const components = [ ...existing, ...joyComponents /*, JoyLoyaltyWidget (
 Only opt a document into `Oxygen-Cache-Control` when ALL hold:
 GET + 200; root `joy` not personalized; no `session=` cookie (cache key ignores cookies → guest HTML
 would be replayed to a member, widget shows "Sign in"); path segment (after optional locale) not in
-`account, api, cart, discount, graphiql, subrequest-profiler`; no Weaverse preview params. Also set `Vary`.
+`account, api, cart, discount, graphiql, subrequest-profiler`; no Weaverse preview params. Also set
+`Vary: Accept-Encoding, Cookie` so a cached guest document is never replayed to a request carrying the
+session cookie.
+If the storefront already ships a full-page cache (Weaverse Pilot: `app/utils/full-page-cache.ts`),
+add the `session=` cookie guard to it. Do **not** make the root loader anonymous to keep the cache (§5).
 Note: RR7 single-fetch `.data` requests bypass `handleRequest` — add the same check in any `handleDataRequest`.
 
 ## 11. Deploy to Oxygen
@@ -159,6 +170,9 @@ Guest (incognito):
 Member:
 - [ ] Response `Cache-Control: private, no-store`, no `Oxygen-Cache-Control`.
 - [ ] `/api/joy-token` 200 `{token, expiresIn}`; then `Authorization: Bearer` calls to `JOY_API_URL/customer...`.
+- [ ] With a brand-new customer: the first member `GET JOY_API_URL/info` carries `isEarnSignup=true`,
+      sessionStorage gets `joy:earn-signup-sent`, and the sign-up points show up after reload. Missing
+      flag → `customerAccount` is stubbed or the member got a cached guest document (§5, §10).
 - [ ] Points/tier match Joy admin; redeem → coupon auto-applied to cart (cart wiring) and drawer opens.
 - [ ] Switch locale (`/fr/...`) → Joy texts in that language.
 
@@ -175,6 +189,7 @@ Member:
 | Build: cannot resolve `dompurify` | Install it explicitly (`npm i dompurify`) when your package manager doesn't hoist `@joy-loyalty/hydrogen`'s dependency (pnpm/PnP). |
 | Package upgrade doesn't show | Stale Vite prebundle: reinstall, `rm -rf node_modules/.vite`, restart dev. |
 | Member sees guest UI after login | Cached guest document served — full-page cache rules §10 / session-cookie guard. |
+| New member gets no sign-up points; `/info` has no `isEarnSignup`, `joy:token` re-minted each page load | `customerAccount` stubbed/anonymous in the root loader → widget treats it as logout and clears the token. Pass the real `context.customerAccount` (§5). Backend side: Sign up program active, customer created after the program start, not in test mode. |
 | Wrong language | `locale` not passed / not lowercased (`storefront.i18n.language` is `EN`). |
 | Loyalty Page block empty | Shop is on Loyalty Page V1 (`isLoyaltyPageV2Enabled` false) or env missing. |
 
