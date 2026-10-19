@@ -1,6 +1,19 @@
 ---
 name: joy-headless-install
-description: Install Joy Loyalty (headless) into a merchant's Shopify Hydrogen storefront, optionally with Weaverse — env vars, root loader, CSP, personalized cache, /api/joy-token, <JoyWidget/>, cart wiring, Loyalty Page, Weaverse blocks, Oxygen deploy, verification. Use when asked to "install Joy on Hydrogen", "add Joy loyalty widget to Hydrogen/Weaverse", "install Joy headless", "integrate Joy into Hydrogen", "set up @joy-loyalty/hydrogen", or when debugging a Joy headless integration (joy-token 401 loops, CSP blocks, widget skeleton stuck).
+description: >
+  Install Joy Loyalty (headless) into a merchant's Shopify Hydrogen storefront,
+  optionally with Weaverse: env vars, root loader, CSP, personalized cache,
+  /api/joy-token, <JoyWidget/>, cart wiring, Loyalty Page, Weaverse blocks,
+  Oxygen deploy, verification. Also use when debugging a Joy headless
+  integration (joy-token 401 loops, CSP blocks, widget skeleton stuck, no
+  sign-up points). Never commit JOY_API_SECRET.
+when-to-use: install Joy on Hydrogen, add Joy loyalty widget to Hydrogen/Weaverse, install Joy headless, integrate Joy into Hydrogen, set up @joy-loyalty/hydrogen, Joy widget not working on Hydrogen, /joy-headless-install
+argument-hint: "[store.myshopify.com]"
+compatibility: Requires a Shopify Hydrogen storefront (React Router 7, @shopify/hydrogen >= 2025.5), Node.js >= 18, npm/pnpm/yarn, the Joy Loyalty app installed on the store, and a working Customer Account API setup
+metadata:
+  author: tinhnv2001
+  version: "1.1"
+  short-description: "Install Joy Loyalty on a Shopify Hydrogen / Weaverse storefront"
 ---
 
 # Joy headless install (Hydrogen / Weaverse)
@@ -19,7 +32,18 @@ See `references/fields.md` for every prop/option and `references/example-root.md
 for copy-ready snippets. Packages: `@joy-loyalty/hydrogen`, `@joy-loyalty/sdk`,
 `@joy-loyalty/weaverse-hydrogen` on npm.
 
-## 0. Go/no-go gate (ask before touching code)
+## 0. Prerequisites and go/no-go gate (ask before touching code)
+
+Stop and tell the user what is missing if any check fails. Do not install half of the integration.
+
+- `package.json` has `@shopify/hydrogen` and `react-router` 7 → it is a Hydrogen storefront.
+  Liquid theme stores do not need this skill: Joy works there through the app embed.
+- The Joy Loyalty app is installed on the store, and the user can open Joy admin.
+- `context.customerAccount` works (Customer Account API configured), otherwise every shopper is a guest.
+- The user can provide `JOY_SHOP_DOMAIN` (`*.myshopify.com`) and the Headless secret (`hs_…`).
+  Ask for it to be put in `.env` / Oxygen env vars yourself; never echo it in chat, commits or files.
+
+Then confirm:
 
 1. **Secret.** Headless auth signs requests with the shop's **Headless secret**
    (Joy admin → Settings → Manage keys). The REST "Secret key" is not accepted (401).
