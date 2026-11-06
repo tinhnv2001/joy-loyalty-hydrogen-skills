@@ -9,6 +9,7 @@ Works with **Claude Code** (default), **OpenAI Codex**, **Cursor**, **Grok** and
 | Skill | What it does |
 |---|---|
 | [`joy-headless-install`](skills/joy-headless-install/SKILL.md) | Installs Joy into a Shopify Hydrogen storefront (optionally with Weaverse): env vars, root loader, CSP, personalized cache, `/api/joy-token`, `<JoyWidget/>`, cart wiring, Loyalty Page, Weaverse blocks, Oxygen deploy and verification. Also troubleshoots an existing integration. |
+| [`joy-headless-redeem-cart`](skills/joy-headless-redeem-cart/SKILL.md) | Adds the **Redeem in Cart** block (`<JoyRedeemCart/>`, `@joy-loyalty/hydrogen` 0.3.0+) to your cart drawer or cart page: dedicated cart fetcher, cart action that returns the cart, cart fragment fields for your Storefront API version, client cart store sync and verification. Run it after `joy-headless-install`. |
 
 ## Prerequisites
 
@@ -41,7 +42,7 @@ npx skills add tinhnv2001/joy-loyalty-hydrogen-skills --list
 | Codex | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a codex -y` |
 | Cursor | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a cursor -y` |
 | Several agents | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills -a claude-code -a codex -a cursor -y` |
-| One skill only | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills --skill joy-headless-install` |
+| One skill only | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills --skill joy-headless-redeem-cart` |
 | Interactive | `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills` |
 
 `-g` installs user-wide, `-y` skips prompts. Add `--copy` if the machine cannot symlink.
@@ -49,8 +50,8 @@ npx skills add tinhnv2001/joy-loyalty-hydrogen-skills --list
 ### Update / remove / list
 
 ```bash
-npx skills update joy-headless-install -y
-npx skills remove joy-headless-install -a claude-code -y
+npx skills update -y
+npx skills remove joy-headless-install joy-headless-redeem-cart -a claude-code -y
 npx skills ls -a claude-code
 ```
 
@@ -58,10 +59,10 @@ npx skills ls -a claude-code
 
 ```bash
 git clone https://github.com/tinhnv2001/joy-loyalty-hydrogen-skills.git /tmp/joy-loyalty-hydrogen-skills
-cp -R /tmp/joy-loyalty-hydrogen-skills/skills/joy-headless-install .claude/skills/
+cp -R /tmp/joy-loyalty-hydrogen-skills/skills/joy-headless-install /tmp/joy-loyalty-hydrogen-skills/skills/joy-headless-redeem-cart .claude/skills/
 ```
 
-`SKILL.md` must end up at `.claude/skills/joy-headless-install/SKILL.md` (or the equivalent folder for your agent).
+Each `SKILL.md` must end up at `.claude/skills/<skill>/SKILL.md` (or the equivalent folder for your agent).
 
 ## Run
 
@@ -70,6 +71,14 @@ cp -R /tmp/joy-loyalty-hydrogen-skills/skills/joy-headless-install .claude/skill
 ```
 
 Or just ask: *"Install Joy Loyalty on this Hydrogen storefront."* The agent picks the skill from its description.
+
+Add Redeem in Cart to the cart drawer (after Joy is installed):
+
+```
+/joy-headless-redeem-cart
+```
+
+Or: *"Add the Joy Redeem in Cart block to my cart drawer."*
 
 The skill checks prerequisites first and stops if something is missing. It asks you to put the Headless secret in `.env` / Oxygen environment variables yourself and never writes it into code or commits.
 
@@ -86,7 +95,8 @@ See §13 of [`SKILL.md`](skills/joy-headless-install/SKILL.md) for the full symp
 ## Docs
 
 - Merchant guide: https://help.joy.so/settings/developers/headless/
-- Developer docs: https://devdocs.joy.so/joy-headless-api/overview/
+- Redeem in Cart (Hydrogen): https://help.joy.so/on-site-content/cart-drawer/redeem-in-cart-headless/
+- Developer docs: https://devdocs.joy.so/joy-headless-api/overview/ · https://devdocs.joy.so/joy-headless-api/redeem-in-cart/
 - Packages: [`@joy-loyalty/hydrogen`](https://www.npmjs.com/package/@joy-loyalty/hydrogen), [`@joy-loyalty/sdk`](https://www.npmjs.com/package/@joy-loyalty/sdk), [`@joy-loyalty/weaverse-hydrogen`](https://www.npmjs.com/package/@joy-loyalty/weaverse-hydrogen)
 
 ## Changelog

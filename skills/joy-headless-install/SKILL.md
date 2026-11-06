@@ -12,7 +12,7 @@ argument-hint: "[store.myshopify.com]"
 compatibility: Requires a Shopify Hydrogen storefront (React Router 7, @shopify/hydrogen >= 2025.5), Node.js >= 18, npm/pnpm/yarn, the Joy Loyalty app installed on the store, and a working Customer Account API setup
 metadata:
   author: tinhnv2001
-  version: "1.1"
+  version: "1.2"
   short-description: "Install Joy Loyalty on a Shopify Hydrogen / Weaverse storefront"
 ---
 
@@ -50,8 +50,9 @@ Then confirm:
    `JOY_API_SECRET` must be the Headless secret.
 2. **Loyalty Page version.** `<JoyLoyaltyPage/>` renders only when
    `shop.loyaltyPageVersion === 'v2'` (Loyalty Page V2 enabled in Joy admin). Otherwise it renders nothing.
-3. **Package version.** Use the latest `0.2.x` from npm (`@joy-loyalty/hydrogen` ≥ 0.2.1
-   loads the widget core from `https://api.joy.so`; on 0.2.0 set `JOY_WIDGET_ASSET_URL=https://api.joy.so`).
+3. **Package version.** Use the latest from npm (`@joy-loyalty/hydrogen` ≥ 0.2.1 loads the widget
+   core from `https://api.joy.so`; on 0.2.0 set `JOY_WIDGET_ASSET_URL=https://api.joy.so`). The cart
+   drawer block `<JoyRedeemCart/>` needs **0.3.0** or later.
 
 ## 1. Prerequisites and where values come from
 
@@ -142,6 +143,11 @@ Every prop (defaults, fallbacks) is in `references/fields.md` §JoyWidget. Key p
 - `cartFetcher` + `cartRevalidate` are both required for cart mutations (auto-apply coupon, free-gift add-to-cart). Without them cart actions degrade to `cart-unavailable` (the code is shown, not applied).
 - `cartRoute` must be locale-aware (`/fr-ca/cart`); default `/cart`. Your cart route action must accept the standard Hydrogen `CartForm` actions.
 
+**Cart drawer block (`<JoyRedeemCart/>`, 0.3.0+)** — balance, redeemable rewards, one-click apply
+to the cart and the applied-rewards list, inside the cart drawer or cart page. If the user wants it,
+finish this skill first, then follow the **`joy-headless-redeem-cart`** skill (dedicated fetcher
+key, cart action returning `cart`, cart fragment fields per Storefront API version).
+
 ## 8. Loyalty Page
 
 **Plain Hydrogen** — a route (e.g. `pages.rewards.tsx` or `($locale).rewards.tsx`):
@@ -198,6 +204,7 @@ Member:
       sessionStorage gets `joy:earn-signup-sent`, and the sign-up points show up after reload. Missing
       flag → `customerAccount` is stubbed or the member got a cached guest document (§5, §10).
 - [ ] Points/tier match Joy admin; redeem → coupon auto-applied to cart (cart wiring) and drawer opens.
+- [ ] If `<JoyRedeemCart/>` is mounted: run the `joy-headless-redeem-cart` §7 checklist.
 - [ ] Switch locale (`/fr/...`) → Joy texts in that language.
 
 ## 13. Common errors → fixes
