@@ -13,7 +13,7 @@ argument-hint: "[path/to/cart-drawer component]"
 compatibility: Requires a Shopify Hydrogen storefront (React Router 7, @shopify/hydrogen >= 2025.5) where Joy headless is already installed (root loader returns getJoyInitialData(), /api/joy-token route), and @joy-loyalty/hydrogen >= 0.3.0
 metadata:
   author: tinhnv2001
-  version: "1.0"
+  version: "1.0.1"
   short-description: "Add Joy Redeem in Cart to a Hydrogen cart drawer"
 ---
 
@@ -21,7 +21,8 @@ metadata:
 
 > **Goal:** mount `<JoyRedeemCart/>` in the storefront's cart drawer (or cart page) so signed-in
 > customers see their points, redeem a reward and get the discount code applied to the cart in one
-> click, and can remove an applied reward to get the points back. Design, texts and behavior come
+> click, and can remove an applied reward to get the points back (when **Enable customer self-revoke
+> coupon** is on). Design, texts and behavior come
 > from Joy admin → **On-site content → Cart drawer → Redeem in cart**. Nothing is styled in code.
 
 Merchant guide: https://help.joy.so/on-site-content/cart-drawer/redeem-in-cart-headless/ ·
@@ -93,17 +94,19 @@ Then render `<JoyCartRedeem cart={cart} />` at the spot chosen in §1.
 - **Markets / locales:** `cartRoute` must be locale-prefixed (`/fr-ca/cart`) and `loginUrl` too
   (`/fr-ca/account/login`). Reuse the project's helper (Pilot: `usePrefixPathWithLocale('/cart')`).
 - **Client-side navigation:** pass `onNavigate={useNavigate()}` if the project wants SPA links.
-- Do not pass `assetUrl` in production unless the root loader already exposes an override.
+- The spread passes `assetUrl` only when the root loader's `joyAssetUrl` (`JOY_WIDGET_ASSET_URL`) is set.
+  Keep that env var unset in production.
 
 Full prop list: `references/redeem-cart.md` §Props.
 
 ## 3. The cart action must return the cart
 
-Open the cart route (`app/routes/($locale).cart.tsx` or `cart.tsx`). The block submits standard
-`CartForm` actions to `cartRoute`: **`DiscountCodesUpdate`** (apply/remove a code) and **`LinesAdd`**
-(free product rewards). The action must:
+Open the cart route (`app/routes/($locale).cart.tsx` or `cart.tsx`). The block submits one standard
+`CartForm` action to `cartRoute`: **`DiscountCodesUpdate`** (apply a redeemed code, remove it on
+revoke or when it fails). It does not add lines: Redeem in Cart only lists amount, percentage and
+free-shipping rewards. The action must:
 
-- handle both actions (the skeleton's `switch (action)` already does), and
+- handle `CartForm.ACTIONS.DiscountCodesUpdate` (the skeleton's `switch (action)` already does), and
 - return the updated cart in the response — the skeleton's `data({cart: cartResult, errors, warnings}, {status, headers})`.
 
 The block trusts only the cart returned by its own request. If the action returns a redirect, an
@@ -124,14 +127,18 @@ Pilot does the same with `useCartFetcherSync(cartFetcher)` in `joy-redeem-cart.t
 
 ## 5. Merge the cart fragment fields
 
-1. Find the Storefront API version. Hydrogen's calendar version maps to it: `@shopify/hydrogen`
-   `2025.10.x` → API `2025-10`, `2026.7.x` → `2026-07`. An explicit `storefrontApiVersion` passed to
-   `createHydrogenContext`/`createStorefrontClient` wins over that.
+1. Find the Storefront API version. An explicit override wins: `createHydrogenContext({storefront:
+   {apiVersion}})` or `createStorefrontClient({storefrontApiVersion})` (usually in `server.ts` /
+   `app/lib/context.ts`). Otherwise it is the version the installed `@shopify/hydrogen` was built for:
+   the API quarter at or before its `YYYY.M` (2025.5 → `2025-04`, 2026.4 → `2026-04`). If unsure,
+   read it from a Storefront request URL in dev (`/api/<version>/graphql.json`).
 2. Merge the matching variant from `references/redeem-cart.md` §Cart fragment into the project's
    `CART_QUERY_FRAGMENT` (skeleton: `app/lib/fragments.ts`). **Merge** fields — do not replace the
    fragment, and do not add a second `lines` selection with different arguments.
-   - **Default** variant: Storefront API 2025-10 → 2026-10.
+   - **Default** variant: validated on Storefront API 2025-10 → 2026-10.
    - **Modern** variant: 2026-07 and later only. It fails on 2026-04 and earlier.
+   - Older than 2025-10: use the Default variant, but validate it against the project's version
+     before going further and tell the user it is outside the validated range.
 3. Validate the merged GraphQL against the project's API version (Shopify dev tools / `shopify-hydrogen`
    skill, or run the storefront and check the cart query has no errors), then run the project's
    `codegen` and `typecheck` scripts.

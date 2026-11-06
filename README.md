@@ -55,6 +55,8 @@ npx skills remove joy-headless-install joy-headless-redeem-cart -a claude-code -
 npx skills ls -a claude-code
 ```
 
+`update` only refreshes skills you already have. To get a skill added to this repo later (e.g. `joy-headless-redeem-cart`), run `npx skills add tinhnv2001/joy-loyalty-hydrogen-skills` again.
+
 ### git clone (no Skills CLI)
 
 ```bash

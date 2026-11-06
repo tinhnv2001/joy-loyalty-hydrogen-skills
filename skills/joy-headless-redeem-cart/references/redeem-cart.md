@@ -29,7 +29,8 @@ remembered per customer for the browser session only.
 | `CartForm` action | When |
 |---|---|
 | `DiscountCodesUpdate` | Apply a redeemed code; remove a code on revoke or when it fails to apply. |
-| `LinesAdd` | Free product rewards. |
+
+The block never adds lines: it lists only amount, percentage and free-shipping rewards.
 
 The response must carry the updated `cart` (skeleton default `{cart, errors, warnings}`).
 

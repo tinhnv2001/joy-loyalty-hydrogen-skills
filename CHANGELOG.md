@@ -1,5 +1,11 @@
 # Changelog
 
+## joy-headless-redeem-cart 1.0.1 — 2026-11-06
+
+- Fix: the block only sends `DiscountCodesUpdate` (no `LinesAdd`; Redeem in Cart has no free-product rewards).
+- Fix: Storefront API version detection (`storefront.apiVersion` override, quarter mapping) and what to do below 2025-10.
+- README: `npx skills update` does not install new skills; re-run `npx skills add`.
+
 ## joy-headless-redeem-cart 1.0 — 2026-11-06
 
 - New skill: add the Redeem in Cart block (`<JoyRedeemCart/>`, `@joy-loyalty/hydrogen` 0.3.0+) to a Hydrogen cart drawer or cart page — prerequisites gate, mount with a dedicated cart fetcher, cart action that returns the cart, Default/Modern cart fragment by Storefront API version, client cart store sync, CSP, verify checklist and troubleshooting.
